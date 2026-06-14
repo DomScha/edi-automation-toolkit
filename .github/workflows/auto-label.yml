@@ -20,7 +20,7 @@ jobs:
       - name: Apply labels based on changed files
         uses: actions/labeler@v5
         with:
-          configuration-path: .github/labeler.yml
+          configuration-path: .github/auto-label/labeler.yml
           sync-labels: true
 
   label-issue:

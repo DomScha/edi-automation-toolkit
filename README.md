@@ -1,5 +1,10 @@
 # 🏷️ Auto Label
 
+![Workflow Status](https://github.com/DomScha/auto-label/actions/workflows/auto-label.yml/badge.svg)
+![License](https://img.shields.io/github/license/DomScha/auto-label)
+![Last Commit](https://img.shields.io/github/last-commit/DomScha/auto-label)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)
+
 Automatisches Labeling für Issues und Pull Requests — basierend auf geänderten Dateien (PRs) und Keywords (Issues).
 
 Teil meines **EDI Automation Toolkit** — kleine, fokussierte Tools rund um GitHub Workflows, Automation und AI.

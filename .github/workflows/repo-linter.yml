@@ -1,0 +1,119 @@
+name: Repo Linter
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  lint-repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check essential files
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Define checks: file path(s) -> human-readable name
+            // For entries with multiple paths, at least one must exist
+            const checks = [
+              { name: "README", paths: ["README.md", "readme.md"], required: true },
+              { name: "LICENSE", paths: ["LICENSE", "LICENSE.md", "LICENSE.txt"], required: true },
+              { name: ".gitignore", paths: [".gitignore"], required: true },
+              { name: "CONTRIBUTING", paths: ["CONTRIBUTING.md", ".github/CONTRIBUTING.md"], required: false },
+              { name: "CODEOWNERS", paths: [".github/CODEOWNERS", "CODEOWNERS"], required: false },
+              { name: "Issue Templates", paths: [".github/ISSUE_TEMPLATE"], required: false },
+            ];
+
+            const results = checks.map(check => {
+              const found = check.paths.some(p => fs.existsSync(path.join(process.env.GITHUB_WORKSPACE, p)));
+              return { ...check, found };
+            });
+
+            const missingRequired = results.filter(r => r.required && !r.found);
+            const missingOptional = results.filter(r => !r.required && !r.found);
+            const present = results.filter(r => r.found);
+
+            // Build markdown report
+            let report = "## 🔍 Repo Linter Report\n\n";
+
+            report += "### ✅ Vorhanden\n";
+            report += present.length > 0
+              ? present.map(r => `- ${r.name}`).join("\n")
+              : "_Keine der geprüften Dateien gefunden._";
+            report += "\n\n";
+
+            if (missingRequired.length > 0) {
+              report += "### ❌ Fehlt (empfohlen)\n";
+              report += missingRequired.map(r => `- **${r.name}** — \`${r.paths[0]}\``).join("\n");
+              report += "\n\n";
+            }
+
+            if (missingOptional.length > 0) {
+              report += "### 💡 Optional, könnte ergänzt werden\n";
+              report += missingOptional.map(r => `- ${r.name} — \`${r.paths[0]}\``).join("\n");
+              report += "\n\n";
+            }
+
+            const score = Math.round((present.length / results.length) * 100);
+            report += `### 📊 Repo Health Score: ${score}%\n`;
+
+            console.log(report);
+
+            // Set outputs for later steps
+            core.setOutput("report", report);
+            core.setOutput("missing_required", missingRequired.length);
+            core.setOutput("score", score);
+
+            // Write summary
+            await core.summary.addRaw(report).write();
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = `${{ steps.check.outputs.report }}`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c =>
+              c.body.includes("Repo Linter Report") && c.user.type === "Bot"
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: report,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: report,
+              });
+            }
+
+      - name: Fail if required files are missing
+        if: steps.check.outputs.missing_required > 0
+        run: |
+          echo "::warning::Es fehlen empfohlene Dateien im Repo. Siehe Report oben."

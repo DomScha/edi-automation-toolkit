@@ -1,26 +1,18 @@
-# 🏷️ Auto Label
+# 🧰 EDI Automation Toolkit
 
-![Workflow Status](https://github.com/DomScha/auto-label/actions/workflows/auto-label.yml/badge.svg)
-![License](https://img.shields.io/github/license/DomScha/auto-label)
-![Last Commit](https://img.shields.io/github/last-commit/DomScha/auto-label)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)
-
-![Profile Views](https://komarev.com/ghpvc/?username=DomScha&color=38bdf8&style=flat)
-![GitHub followers](https://img.shields.io/github/followers/DomScha?style=flat&color=38bdf8)
-
-### Tech Stack
+![Workflow Status](https://github.com/DomScha/edi-automation-toolkit/actions/workflows/auto-label.yml/badge.svg)
+![License](https://img.shields.io/github/license/DomScha/edi-automation-toolkit)
+![Last Commit](https://img.shields.io/github/last-commit/DomScha/edi-automation-toolkit)
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat&logo=github-actions&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
-![REST API](https://img.shields.io/badge/REST%20API-005571?style=flat&logo=fastapi&logoColor=white)
-![OpenAI](https://img.shields.io/badge/AI%20%2F%20LLM-412991?style=flat&logo=openai&logoColor=white)
 
-Automatisches Labeling für Issues und Pull Requests — basierend auf geänderten Dateien (PRs) und Keywords (Issues).
+Eine Sammlung kleiner, fokussierter Tools rund um **GitHub Workflows, Automation, AI und EDI**. Statt einem großen Monolithen: einzelne Bausteine, die für sich funktionieren und sich kombinieren lassen.
 
-Teil meines **EDI Automation Toolkit** — kleine, fokussierte Tools rund um GitHub Workflows, Automation und AI.
 ---
 
-## Was macht es?
+## 📦 Module
+
+### 🏷️ Auto Label
+Automatisches Labeling für Issues und Pull Requests — basierend auf geänderten Dateien (PRs) und Keywords (Issues).
 
 **Pull Requests** werden automatisch gelabelt basierend auf den geänderten Dateipfaden:
 
@@ -35,28 +27,33 @@ Teil meines **EDI Automation Toolkit** — kleine, fokussierte Tools rund um Git
 
 **Issues** werden basierend auf Titel & Beschreibung gelabelt (z.B. "bug", "enhancement", "automation", "ai", "edi").
 
----
-
-## Setup
-
+**Setup:**
 1. Dateien kopieren:
    ```
    .github/workflows/auto-label.yml
    .github/labeler.yml
    ```
-
 2. Labels im Repo anlegen (falls noch nicht vorhanden): `automation`, `documentation`, `ai`, `edi`, `api`, `dependencies`, `config`, `bug`, `enhancement`
-
 3. Fertig — bei jedem PR/Issue läuft das automatisch.
+
+**Tech:** GitHub Actions · [`actions/labeler`](https://github.com/actions/labeler) · [`actions/github-script`](https://github.com/actions/github-script)
 
 ---
 
-## Warum das relevant ist
+### 🔜 Geplant
+Weitere Module, die nach und nach dazukommen:
 
-In Teams mit vielen Repos und PRs spart konsistentes Labeling Zeit bei Reviews, Reporting und Priorisierung. Genau die Art von "kleinem Automatisierungsbaustein", der in größeren CI/CD- und Workflow-Setups (z.B. EDI-Pipelines) den Unterschied macht.
+- **Repo Linter** — prüft README, LICENSE, .gitignore bei jedem Push
+- **AI PR Reviewer** — fasst PR-Diffs via LLM zusammen und kommentiert automatisch
+- **EDIFACT → JSON Konverter** — kleine API zur Umwandlung von EDI-Nachrichten
 
-## Tech
+---
 
-- GitHub Actions
-- [`actions/labeler`](https://github.com/actions/labeler)
-- [`actions/github-script`](https://github.com/actions/github-script)
+## Warum dieses Toolkit?
+
+In Teams mit vielen Repos und PRs sparen kleine, konsistente Automatisierungsbausteine viel Zeit bei Reviews, Reporting und Priorisierung — genau die Art von Bausteinen, die in größeren CI/CD- und Workflow-Setups (z.B. EDI-Pipelines) den Unterschied machen.
+
+## Tech Stack
+
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat&logo=github-actions&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)

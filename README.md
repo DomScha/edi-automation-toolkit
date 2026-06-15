@@ -70,10 +70,34 @@ Bei PRs wird ein Kommentar mit dem Report gepostet (und bei wiederholten Runs ak
 
 ---
 
+### 🤖 AI PR Reviewer
+
+Fasst bei jedem Pull Request den Diff per Anthropic Claude API zusammen und postet eine kurze Review als PR-Kommentar — was wurde geändert, worauf sollte ein Reviewer achten, optionale Stil-Hinweise.
+
+**Was es macht:**
+- Holt den Diff zwischen PR-Branch und Base-Branch (begrenzt auf ~12.000 Zeichen, ohne Lock-Dateien)
+- Schickt Titel, Beschreibung und Diff an Claude (`claude-sonnet-4-6`)
+- Postet das Ergebnis als Kommentar (wird bei neuen Commits aktualisiert statt dupliziert)
+
+**Setup:**
+1. Datei kopieren:
+   ```
+   .github/workflows/ai-pr-reviewer.yml
+   ```
+2. Repository Secret anlegen: Settings → Secrets and variables → Actions → New repository secret
+   - Name: `ANTHROPIC_API_KEY`
+   - Value: dein Anthropic API Key
+3. Fertig — läuft automatisch bei jedem PR.
+
+**Hinweis:** Der Review ersetzt kein menschliches Review, sondern gibt einen schnellen ersten Überblick — besonders nützlich bei größeren Diffs oder zur Vorbereitung auf das eigentliche Review.
+
+**Tech:** GitHub Actions · Anthropic Claude API · [`actions/github-script`](https://github.com/actions/github-script)
+
+---
+
 ### 🔜 Geplant
 Weitere Module, die nach und nach dazukommen:
 
-- **AI PR Reviewer** — fasst PR-Diffs via LLM zusammen und kommentiert automatisch
 - **EDIFACT → JSON Konverter** — kleine API zur Umwandlung von EDI-Nachrichten
 
 ---

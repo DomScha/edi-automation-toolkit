@@ -64,7 +64,7 @@ Ergebnis ist ein **Repo Health Score** (in %), der zeigt, wie vollständig das R
    ```
 2. Fertig — läuft automatisch bei Push auf `main` und bei jedem PR.
 
-Bei PRs wird ein Kommentar mit dem Report gepostet (und bei wiederholten Runs aktualisiert, statt neue Kommentare anzuhäufen). Fehlen empfohlene Dateien, wird zusätzlich eine Warning im Workflow-Run angezeigt — der Job schlägt aber nicht hart fehl, damit das Setup nicht blockiert.
+Bei PRs wird ein Kommentar mit dem Report gepostet (und bei wiederholten Runs aktualisiert, statt neue Kommentare anzuhäufen). Fehlen empfohlene Dateien, wird zusätzlich eine Warning im Workflow-Run angezeigt — der Job schlägt aber nicht hart fehl, damit das Setup nicht blockiert wird.
 
 **Tech:** GitHub Actions · [`actions/github-script`](https://github.com/actions/github-script) · [Job Summaries](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary)
 

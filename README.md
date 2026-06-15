@@ -40,10 +40,39 @@ Automatisches Labeling für Issues und Pull Requests — basierend auf geändert
 
 ---
 
+### 🔍 Repo Linter
+
+Prüft bei jedem Push und Pull Request, ob wichtige Dateien im Repository vorhanden sind — und postet einen Report als PR-Kommentar sowie als Job-Summary.
+
+**Geprüft wird auf:**
+
+| Datei | Status |
+|---|---|
+| `README.md` | empfohlen |
+| `LICENSE` | empfohlen |
+| `.gitignore` | empfohlen |
+| `CONTRIBUTING.md` | optional |
+| `.github/CODEOWNERS` | optional |
+| `.github/ISSUE_TEMPLATE` | optional |
+
+Ergebnis ist ein **Repo Health Score** (in %), der zeigt, wie vollständig das Repo aufgestellt ist.
+
+**Setup:**
+1. Datei kopieren:
+   ```
+   .github/workflows/repo-linter.yml
+   ```
+2. Fertig — läuft automatisch bei Push auf `main` und bei jedem PR.
+
+Bei PRs wird ein Kommentar mit dem Report gepostet (und bei wiederholten Runs aktualisiert, statt neue Kommentare anzuhäufen). Fehlen empfohlene Dateien, wird zusätzlich eine Warning im Workflow-Run angezeigt — der Job schlägt aber nicht hart fehl, damit das Setup nicht blockiert.
+
+**Tech:** GitHub Actions · [`actions/github-script`](https://github.com/actions/github-script) · [Job Summaries](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary)
+
+---
+
 ### 🔜 Geplant
 Weitere Module, die nach und nach dazukommen:
 
-- **Repo Linter** — prüft README, LICENSE, .gitignore bei jedem Push
 - **AI PR Reviewer** — fasst PR-Diffs via LLM zusammen und kommentiert automatisch
 - **EDIFACT → JSON Konverter** — kleine API zur Umwandlung von EDI-Nachrichten
 

@@ -95,10 +95,64 @@ Fasst bei jedem Pull Request den Diff per Anthropic Claude API zusammen und post
 
 ---
 
+### 🔄 EDI Converter (EDIFACT / X12 → JSON)
+
+Generischer Parser, der EDIFACT- und X12-Nachrichten in strukturiertes JSON umwandelt. Format wird automatisch erkannt (anhand `ISA`/`UNB`-Header oder Delimitern), kann aber auch erzwungen werden.
+
+**Unterstützte Formate:**
+
+| Format | Segment-Trenner | Element-Trenner | Komponenten-Trenner |
+|---|---|---|---|
+| EDIFACT | `'` | `+` | `:` |
+| X12 | `~` | `*` | `>` |
+
+**CLI-Nutzung:**
+
+```bash
+node cli.js examples/sample.edifact
+node cli.js examples/sample.x12 --format x12
+node cli.js examples/sample.edifact --out result.json
+```
+
+**API-Nutzung:**
+
+```bash
+npm install
+node server.js
+
+curl -X POST "http://localhost:3000/convert?format=edifact" \
+  --data-binary @examples/sample.edifact \
+  -H "Content-Type: text/plain"
+```
+
+**Beispiel-Output (Ausschnitt):**
+
+```json
+{
+  "format": "edifact",
+  "segmentCount": 12,
+  "segments": [
+    { "tag": "BGM", "elements": ["220", "ORDER12345", "9"] },
+    { "tag": "NAD", "elements": ["BY", ["4012345000004", "", "9"]] }
+  ]
+}
+```
+
+**Setup:**
+1. Ordner `edi-converter/` kopieren (enthält `edi-parser.js`, `cli.js`, `server.js`, `package.json`, `examples/`)
+2. `npm install` im Ordner ausführen
+3. CLI direkt nutzen oder `node server.js` für die API starten
+
+**Tech:** Node.js · Express (nur für die API, CLI hat keine Dependencies) · generischer Segment/Element-Parser
+
+**Hinweis:** Dieser Parser bildet die rohe Segment-/Element-Struktur ab — für produktive EDI-Mappings (z.B. ORDERS → internes Format) braucht es zusätzlich eine Mapping-Schicht pro Nachrichtentyp. Dieses Tool ist der erste Baustein dafür: rohes EDI in maschinenlesbares JSON, auf dem weitere Verarbeitung aufsetzen kann.
+
+---
+
 ### 🔜 Geplant
 Weitere Module, die nach und nach dazukommen:
 
-- **EDIFACT → JSON Konverter** — kleine API zur Umwandlung von EDI-Nachrichten
+- **tbd** — kommt noch
 
 ---
 

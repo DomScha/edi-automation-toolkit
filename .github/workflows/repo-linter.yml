@@ -26,68 +26,73 @@ jobs:
             const fs = require('fs');
             const path = require('path');
 
-            // Define checks: file path(s) -> human-readable name
-            // For entries with multiple paths, at least one must exist
-            // NOTE: built via JSON.parse from a single-line string to avoid
-            // GitHub Actions' YAML/expression parser misreading lines that
-            // start with "{" inside a multi-line `script:` block.
             const checks = JSON.parse('[{"name":"README","paths":["README.md","readme.md"],"required":true},{"name":"LICENSE","paths":["LICENSE","LICENSE.md","LICENSE.txt"],"required":true},{"name":".gitignore","paths":[".gitignore"],"required":true},{"name":"CONTRIBUTING","paths":["CONTRIBUTING.md",".github/CONTRIBUTING.md"],"required":false},{"name":"CODEOWNERS","paths":[".github/CODEOWNERS","CODEOWNERS"],"required":false},{"name":"Issue Templates","paths":[".github/ISSUE_TEMPLATE"],"required":false}]');
 
-            const results = checks.map(check => {
-              const found = check.paths.some(p => fs.existsSync(path.join(process.env.GITHUB_WORKSPACE, p)));
-              return { ...check, found };
+            const results = checks.map(function (check) {
+              const found = check.paths.some(function (p) {
+                return fs.existsSync(path.join(process.env.GITHUB_WORKSPACE, p));
+              });
+              return Object.assign({}, check, { found: found });
             });
 
-            const missingRequired = results.filter(r => r.required && !r.found);
-            const missingOptional = results.filter(r => !r.required && !r.found);
-            const present = results.filter(r => r.found);
+            const missingRequired = results.filter(function (r) { return r.required && !r.found; });
+            const missingOptional = results.filter(function (r) { return !r.required && !r.found; });
+            const present = results.filter(function (r) { return r.found; });
 
-            // Build markdown report
-            let report = "## 🔍 Repo Linter Report\n\n";
-
-            report += "### ✅ Vorhanden\n";
-            report += present.length > 0
-              ? present.map(r => `- ${r.name}`).join("\n")
-              : "_Keine der geprüften Dateien gefunden._";
-            report += "\n\n";
+            const lines = [];
+            lines.push('## Repo Linter Report');
+            lines.push('');
+            lines.push('### Vorhanden');
+            if (present.length > 0) {
+              present.forEach(function (r) { lines.push('- ' + r.name); });
+            } else {
+              lines.push('_Keine der geprueften Dateien gefunden._');
+            }
+            lines.push('');
 
             if (missingRequired.length > 0) {
-              report += "### ❌ Fehlt (empfohlen)\n";
-              report += missingRequired.map(r => `- **${r.name}** — \`${r.paths[0]}\``).join("\n");
-              report += "\n\n";
+              lines.push('### Fehlt (empfohlen)');
+              missingRequired.forEach(function (r) {
+                lines.push('- **' + r.name + '** - ' + r.paths[0]);
+              });
+              lines.push('');
             }
 
             if (missingOptional.length > 0) {
-              report += "### 💡 Optional, könnte ergänzt werden\n";
-              report += missingOptional.map(r => `- ${r.name} — \`${r.paths[0]}\``).join("\n");
-              report += "\n\n";
+              lines.push('### Optional, koennte ergaenzt werden');
+              missingOptional.forEach(function (r) {
+                lines.push('- ' + r.name + ' - ' + r.paths[0]);
+              });
+              lines.push('');
             }
 
             const score = Math.round((present.length / results.length) * 100);
-            report += `### 📊 Repo Health Score: ${score}%\n`;
+            lines.push('### Repo Health Score: ' + score + '%');
+
+            const report = lines.join('\n');
 
             console.log(report);
 
-            // Set outputs for later steps (used only for the fail-check step)
-            core.setOutput("missing_required", missingRequired.length);
-            core.setOutput("score", score);
+            core.setOutput('missing_required', missingRequired.length);
+            core.setOutput('score', score);
 
-            // Write job summary
             await core.summary.addRaw(report).write();
 
-            // Post / update PR comment directly here — avoids passing
-            // multi-line markdown through `${{ }}` template interpolation,
-            // which breaks on backticks/quotes in the report text.
-            if (context.eventName === "pull_request") {
-              const { data: comments } = await github.rest.issues.listComments({
+            if (context.eventName === 'pull_request') {
+              const commentsResp = await github.rest.issues.listComments({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
               });
 
-              const existing = comments.find(c =>
-                c.body.includes("Repo Linter Report") && c.user.type === "Bot"
-              );
+              const comments = commentsResp.data;
+              let existing = null;
+              for (let i = 0; i < comments.length; i++) {
+                if (comments[i].body.indexOf('Repo Linter Report') !== -1 && comments[i].user.type === 'Bot') {
+                  existing = comments[i];
+                  break;
+                }
+              }
 
               if (existing) {
                 await github.rest.issues.updateComment({
